@@ -1,9 +1,151 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>Calendar Booking</title>
+
+<style>
+body {
+    font-family: Arial;
+    text-align: center;
+    background: linear-gradient(135deg,#fff7cc,#ffffff);
+}
+
+.logo {
+    width: 80px;
+    margin-bottom: 10px;
+}
+
+.calendar {
+    width: 340px;
+    margin: 30px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+select, input, textarea {
+    padding: 5px;
+    border-radius: 8px;
+    width: 90%;
+}
+
+.days, .dates {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-top: 10px;
+}
+
+.days div {
+    font-weight: bold;
+}
+
+.dates div {
+    padding: 10px;
+    margin: 3px;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+.dates div:hover {
+    transform: scale(1.1);
+}
+
+.available { background: #d4edda; }
+.booked { background: #f8d7da; }
+
+.selected {
+    border: 2px solid black;
+}
+
+.result {
+    margin-top: 15px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+button {
+    margin-top: 10px;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    background: orange;
+    color: white;
+    cursor: pointer;
+}
+
+.booking-item {
+    background:#eee;
+    margin:5px;
+    padding:5px;
+    border-radius:8px;
+    font-size:14px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="calendar">
+
+    <!-- اللوجو -->
+    <img src="helper.png" class="logo">
+
+    <div class="header">
+        <button onclick="prevMonth()">⬅</button>
+
+        <div>
+            <span id="monthName"></span>
+            <select id="yearSelect" onchange="changeYear()"></select>
+        </div>
+
+        <button onclick="nextMonth()">➡</button>
+    </div>
+
+    <div class="days">
+        <div>الأحد</div><div>الإثنين</div><div>الثلاثاء</div>
+        <div>الأربعاء</div><div>الخميس</div><div>الجمعة</div><div>السبت</div>
+    </div>
+
+    <div class="dates" id="dates"></div>
+
+    <div class="result" id="result">اختار يوم 👆</div>
+
+    <!-- فورم الحجز -->
+    <div id="bookingForm" style="display:none;">
+
+        <input type="time" id="time"><br><br>
+
+        <textarea id="note" placeholder="ملاحظات"></textarea><br><br>
+
+        <select id="payment">
+            <option value="كاش">كاش</option>
+            <option value="إنستا باي">إنستا باي</option>
+            <option value="فودافون كاش">فودافون كاش</option>
+        </select><br>
+
+        <button onclick="saveBooking()">تأكيد الحجز</button>
+
+        <div id="bookingsList"></div>
+
+    </div>
+
+</div>
+
 <script>
 
 let date = new Date();
 let selectedKey = null;
 
-/* تحميل البيانات */
 let bookings = JSON.parse(localStorage.getItem("bookings")) || {};
 
 const months = [
@@ -92,7 +234,6 @@ function selectDate(day, element, key){
     showBookings();
 }
 
-/* عرض الحجوزات */
 function showBookings(){
 
     let list = document.getElementById("bookingsList");
@@ -101,6 +242,7 @@ function showBookings(){
     if(bookings[selectedKey]){
         bookings[selectedKey].forEach(b => {
             let item = document.createElement("div");
+            item.className = "booking-item";
             item.innerText =
                 "⏰ " + b.time +
                 " | 💰 " + b.payment +
@@ -110,7 +252,6 @@ function showBookings(){
     }
 }
 
-/* حفظ الحجز */
 function saveBooking(){
 
     let time = document.getElementById("time").value;
@@ -122,11 +263,7 @@ function saveBooking(){
         return;
     }
 
-    let newBooking = {
-        time: time,
-        note: note,
-        payment: payment
-    };
+    let newBooking = { time, note, payment };
 
     if(!bookings[selectedKey]){
         bookings[selectedKey] = [];
@@ -143,8 +280,7 @@ function saveBooking(){
 }
 
 function changeYear(){
-    let y = document.getElementById("yearSelect").value;
-    date.setFullYear(y);
+    date.setFullYear(document.getElementById("yearSelect").value);
     renderCalendar();
 }
 
@@ -162,3 +298,6 @@ initYears();
 renderCalendar();
 
 </script>
+
+</body>
+</html>
