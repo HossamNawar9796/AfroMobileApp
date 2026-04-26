@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>Calendar Booking</title>
+
+<style>
+body {
+    font-family: Arial;
+    text-align: center;
+    background: linear-gradient(135deg,#fff7cc,#ffffff);
+}
+
+.logo {
+    width: 80px;
+    margin-bottom: 10px;
+}
+
+.calendar {
+    width: 340px;
+    margin: 30px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+    from {opacity:0; transform: translateY(20px);}
+    to {opacity:1; transform: translateY(0);}
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+select {
+    padding: 5px;
+    border-radius: 8px;
+}
+
+.days, .dates {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-top: 10px;
+}
+
+.days div {
+    font-weight: bold;
+}
+
+.dates div {
+    padding: 10px;
+    margin: 3px;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+.dates div:hover {
+    transform: scale(1.1);
+}
+
+/* حالات الأيام */
+.available { background: #d4edda; } /* أخضر */
+.booked { background: #f8d7da; } /* أحمر */
+
+.selected {
+    border: 2px solid black;
+}
+
+.result {
+    margin-top: 15px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+button.book-btn {
+    margin-top: 15px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    background: orange;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button.book-btn:hover {
+    opacity: 0.8;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="calendar">
+
+    <!-- اللوجو -->
+    <img src="helper.png" class="logo">
+
+    <div class="header">
+        <button onclick="prevMonth()">⬅</button>
+
+        <div>
+            <span id="monthName"></span>
+            <select id="yearSelect" onchange="changeYear()"></select>
+        </div>
+
+        <button onclick="nextMonth()">➡</button>
+    </div>
+
+    <div class="days">
+        <div>الأحد</div>
+        <div>الإثنين</div>
+        <div>الثلاثاء</div>
+        <div>الأربعاء</div>
+        <div>الخميس</div>
+        <div>الجمعة</div>
+        <div>السبت</div>
+    </div>
+
+    <div class="dates" id="dates"></div>
+
+    <div class="result" id="result">
+        اختار يوم 👆
+    </div>
+
+    <button class="book-btn" onclick="bookDay()">حجز موعد</button>
+
+</div>
+
+<script>
+
+let date = new Date();
+let selectedKey = null;
+
+/* بيانات الحجز */
+let bookings = JSON.parse(localStorage.getItem("bookings")) || {};
+
+const months = [
+"يناير","فبراير","مارس","أبريل","مايو","يونيو",
+"يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"
+];
+
+const daysNames = [
+"الأحد","الإثنين","الثلاثاء","الأربعاء",
+"الخميس","الجمعة","السبت"
+];
+
+function initYears() {
+    let select = document.getElementById("yearSelect");
+    for(let y = 2020; y <= 2035; y++){
+        let option = document.createElement("option");
+        option.value = y;
+        option.text = y;
+        select.appendChild(option);
+    }
+}
+
+function renderCalendar() {
+
+    let year = date.getFullYear();
+    let month = date.getMonth();
+
+    document.getElementById("monthName").innerText = months[month];
+    document.getElementById("yearSelect").value = year;
+
+    let firstDay = new Date(year, month, 1).getDay();
+    let lastDate = new Date(year, month + 1, 0).getDate();
+
+    let container = document.getElementById("dates");
+    container.innerHTML = "";
+
+    for(let i=0; i<firstDay; i++){
+        container.innerHTML += "<div></div>";
+    }
+
+    for(let d=1; d<=lastDate; d++){
+
+        let div = document.createElement("div");
+        div.innerText = d;
+
+        let key = `${year}-${month+1}-${d}`;
+
+        if(bookings[key]){
+            div.classList.add("booked");
+        } else {
+            div.classList.add("available");
+        }
+
+        div.onclick = function(){
+            selectDate(d, div, key);
+        };
+
+        container.appendChild(div);
+    }
+}
+
+function selectDate(day, element, key){
+
+    document.querySelectorAll(".dates div")
+    .forEach(d => d.classList.remove("selected"));
+
+    element.classList.add("selected");
+
+    selectedKey = key;
+
+    let selectedDate = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        day
+    );
+
+    let result = document.getElementById("result");
+
+    result.innerText =
+        daysNames[selectedDate.getDay()] +
+        " - " +
+        day + "/" +
+        (date.getMonth()+1) + "/" +
+        date.getFullYear();
+}
+
+/* حجز اليوم */
+function bookDay(){
+
+    if(!selectedKey){
+        alert("اختار يوم الأول");
+        return;
+    }
+
+    bookings[selectedKey] = true;
+
+    localStorage.setItem("bookings", JSON.stringify(bookings));
+
+    renderCalendar();
+}
+
+function changeYear(){
+    let y = document.getElementById("yearSelect").value;
+    date.setFullYear(y);
+    renderCalendar();
+}
+
+function nextMonth(){
+    date.setMonth(date.getMonth()+1);
+    renderCalendar();
+}
+
+function prevMonth(){
+    date.setMonth(date.getMonth()-1);
+    renderCalendar();
+}
+
+initYears();
+renderCalendar();
+
+</script>
+
+</body>
+</html>
