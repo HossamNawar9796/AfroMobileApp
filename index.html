@@ -1,145 +1,9 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-<meta charset="UTF-8">
-<title>Calendar Booking</title>
-
-<style>
-body {
-    font-family: Arial;
-    text-align: center;
-    background: linear-gradient(135deg,#fff7cc,#ffffff);
-}
-
-.logo {
-    width: 80px;
-    margin-bottom: 10px;
-}
-
-.calendar {
-    width: 340px;
-    margin: 30px auto;
-    background: white;
-    padding: 20px;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    animation: fadeIn 0.6s ease;
-}
-
-@keyframes fadeIn {
-    from {opacity:0; transform: translateY(20px);}
-    to {opacity:1; transform: translateY(0);}
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-select {
-    padding: 5px;
-    border-radius: 8px;
-}
-
-.days, .dates {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    margin-top: 10px;
-}
-
-.days div {
-    font-weight: bold;
-}
-
-.dates div {
-    padding: 10px;
-    margin: 3px;
-    cursor: pointer;
-    border-radius: 10px;
-    transition: 0.3s;
-}
-
-.dates div:hover {
-    transform: scale(1.1);
-}
-
-/* حالات الأيام */
-.available { background: #d4edda; } /* أخضر */
-.booked { background: #f8d7da; } /* أحمر */
-
-.selected {
-    border: 2px solid black;
-}
-
-.result {
-    margin-top: 15px;
-    font-size: 20px;
-    font-weight: bold;
-}
-
-button.book-btn {
-    margin-top: 15px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 10px;
-    background: orange;
-    color: white;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-button.book-btn:hover {
-    opacity: 0.8;
-}
-</style>
-
-</head>
-
-<body>
-
-<div class="calendar">
-
-    <!-- اللوجو -->
-    <img src="helper.png" class="logo">
-
-    <div class="header">
-        <button onclick="prevMonth()">⬅</button>
-
-        <div>
-            <span id="monthName"></span>
-            <select id="yearSelect" onchange="changeYear()"></select>
-        </div>
-
-        <button onclick="nextMonth()">➡</button>
-    </div>
-
-    <div class="days">
-        <div>الأحد</div>
-        <div>الإثنين</div>
-        <div>الثلاثاء</div>
-        <div>الأربعاء</div>
-        <div>الخميس</div>
-        <div>الجمعة</div>
-        <div>السبت</div>
-    </div>
-
-    <div class="dates" id="dates"></div>
-
-    <div class="result" id="result">
-        اختار يوم 👆
-    </div>
-
-    <button class="book-btn" onclick="bookDay()">حجز موعد</button>
-
-</div>
-
 <script>
 
 let date = new Date();
 let selectedKey = null;
 
-/* بيانات الحجز */
+/* تحميل البيانات */
 let bookings = JSON.parse(localStorage.getItem("bookings")) || {};
 
 const months = [
@@ -216,29 +80,66 @@ function selectDate(day, element, key){
         day
     );
 
-    let result = document.getElementById("result");
-
-    result.innerText =
+    document.getElementById("result").innerText =
         daysNames[selectedDate.getDay()] +
         " - " +
         day + "/" +
         (date.getMonth()+1) + "/" +
         date.getFullYear();
+
+    document.getElementById("bookingForm").style.display = "block";
+
+    showBookings();
 }
 
-/* حجز اليوم */
-function bookDay(){
+/* عرض الحجوزات */
+function showBookings(){
 
-    if(!selectedKey){
-        alert("اختار يوم الأول");
+    let list = document.getElementById("bookingsList");
+    list.innerHTML = "";
+
+    if(bookings[selectedKey]){
+        bookings[selectedKey].forEach(b => {
+            let item = document.createElement("div");
+            item.innerText =
+                "⏰ " + b.time +
+                " | 💰 " + b.payment +
+                " | 📝 " + b.note;
+            list.appendChild(item);
+        });
+    }
+}
+
+/* حفظ الحجز */
+function saveBooking(){
+
+    let time = document.getElementById("time").value;
+    let note = document.getElementById("note").value;
+    let payment = document.getElementById("payment").value;
+
+    if(!time){
+        alert("اختار الساعة");
         return;
     }
 
-    bookings[selectedKey] = true;
+    let newBooking = {
+        time: time,
+        note: note,
+        payment: payment
+    };
+
+    if(!bookings[selectedKey]){
+        bookings[selectedKey] = [];
+    }
+
+    bookings[selectedKey].push(newBooking);
 
     localStorage.setItem("bookings", JSON.stringify(bookings));
 
     renderCalendar();
+    showBookings();
+
+    document.getElementById("note").value = "";
 }
 
 function changeYear(){
@@ -261,6 +162,3 @@ initYears();
 renderCalendar();
 
 </script>
-
-</body>
-</html>
