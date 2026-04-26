@@ -2,63 +2,70 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
+
+<!-- أهم سطر للـ Responsive -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Calendar Booking</title>
 
 <style>
 body {
     font-family: Arial;
+    margin: 0;
+    padding: 0;
     text-align: center;
     background: linear-gradient(135deg,#fff7cc,#ffffff);
 }
 
-.logo {
-    width: 80px;
-    margin-bottom: 10px;
-}
-
+/* الكونتينر الرئيسي */
 .calendar {
-    width: 340px;
-    margin: 30px auto;
-    background: white;
-    padding: 20px;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 400px;
+    margin: auto;
+    padding: 15px;
+    box-sizing: border-box;
 }
 
+/* اللوجو */
+.logo {
+    width: 70px;
+    max-width: 30%;
+}
+
+/* الهيدر */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 5px;
 }
 
-select, input, textarea {
-    padding: 5px;
-    border-radius: 8px;
-    width: 90%;
-}
-
+/* الأيام والتواريخ */
 .days, .dates {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    margin-top: 10px;
+    gap: 5px;
+    width: 100%;
 }
 
 .days div {
+    font-size: 12px;
     font-weight: bold;
 }
 
 .dates div {
-    padding: 10px;
-    margin: 3px;
-    cursor: pointer;
+    padding: 8px 0;
+    font-size: 14px;
     border-radius: 10px;
-    transition: 0.3s;
+    cursor: pointer;
+    transition: 0.2s;
 }
 
 .dates div:hover {
-    transform: scale(1.1);
+    transform: scale(1.05);
 }
 
+/* الحالات */
 .available { background: #d4edda; }
 .booked { background: #f8d7da; }
 
@@ -67,18 +74,30 @@ select, input, textarea {
 }
 
 .result {
-    margin-top: 15px;
-    font-size: 20px;
+    margin-top: 10px;
+    font-size: 16px;
     font-weight: bold;
 }
 
+/* الفورم */
+select, input, textarea {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 5px;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+/* الزرار */
 button {
+    width: 100%;
     margin-top: 10px;
     padding: 10px;
     border: none;
     border-radius: 10px;
     background: orange;
     color: white;
+    font-size: 15px;
     cursor: pointer;
 }
 
@@ -87,7 +106,7 @@ button {
     margin:5px;
     padding:5px;
     border-radius:8px;
-    font-size:14px;
+    font-size:13px;
 }
 </style>
 
@@ -111,27 +130,30 @@ button {
         <button onclick="nextMonth()">➡</button>
     </div>
 
+    <!-- أيام الأسبوع -->
     <div class="days">
         <div>الأحد</div><div>الإثنين</div><div>الثلاثاء</div>
         <div>الأربعاء</div><div>الخميس</div><div>الجمعة</div><div>السبت</div>
     </div>
 
+    <!-- التواريخ -->
     <div class="dates" id="dates"></div>
 
+    <!-- النتيجة -->
     <div class="result" id="result">اختار يوم 👆</div>
 
     <!-- فورم الحجز -->
     <div id="bookingForm" style="display:none;">
 
-        <input type="time" id="time"><br><br>
+        <input type="time" id="time">
 
-        <textarea id="note" placeholder="ملاحظات"></textarea><br><br>
+        <textarea id="note" placeholder="ملاحظات"></textarea>
 
         <select id="payment">
             <option value="كاش">كاش</option>
             <option value="إنستا باي">إنستا باي</option>
             <option value="فودافون كاش">فودافون كاش</option>
-        </select><br>
+        </select>
 
         <button onclick="saveBooking()">تأكيد الحجز</button>
 
